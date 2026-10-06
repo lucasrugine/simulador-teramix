@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#996437">
+<meta name="description" content="Simulador comercial Tera Mix — Tera Nutrição Vegetal">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tera Mix">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0}
+body{font-family:system-ui,sans-serif;font-size:14px;background:#F7F4F0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Simulador Tera Mix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap">
+<style>
+/* ────────────────────────────────────────────────────────────────
+   Tera Nutrição Vegetal — identidade do simulador de campo.
+   Cores da marca amostradas do logotipo: laranja #F37021,
+   marrom #996437, preto #231F20, branco.
+   Marrom = estrutura e superfícies de marca. Laranja = ganho e ênfase.
+   Vermelho só para custo a mais. Coluna única, alvos grandes,
+   numerais tabulares, contraste alto para leitura sob sol.
+   ──────────────────────────────────────────────────────────────── */
+:root{
+  --paper:#F7F4F0; --card:#FFFFFF; --sunk:#F0E9E1;
+  --ink:#231F20; --ink2:#6B615B; --line:#E3D9CF;
+  --brown:#996437; --brown-deep:#6F4726; --brown-soft:#F2E7DB;
+  --orange:#F37021; --orange-text:#B04D0C; --orange-soft:#FDEBDE;
+  --red:#A3301A; --red-soft:#FAE6E1;
+  --on-brand:#FFFFFF; --mark-other:#BCAC9D;
+  --capa-bg:#996437; --capa-fg:#FFFFFF; --capa-eyebrow:#FFD9BC;
+  --fd:"Montserrat","Segoe UI",system-ui,-apple-system,sans-serif;
+  --fb:"Open Sans",system-ui,-apple-system,sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#17120F; --card:#201A16; --sunk:#1B1511;
+  --ink:#F3EBE4; --ink2:#A89A8F; --line:#362C25;
+  --brown:#C99055; --brown-deep:#E0AE74; --brown-soft:#2A1E14;
+  --orange:#FF8B45; --orange-text:#FFA06A; --orange-soft:#2E1C11;
+  --red:#E8775C; --red-soft:#2E1711;
+  --on-brand:#1A1309; --mark-other:#6B5C51;
+  --capa-bg:#3A2817; --capa-fg:#F7EFE7; --capa-eyebrow:#FFA06A;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#17120F; --card:#201A16; --sunk:#1B1511;
+  --ink:#F3EBE4; --ink2:#A89A8F; --line:#362C25;
+  --brown:#C99055; --brown-deep:#E0AE74; --brown-soft:#2A1E14;
+  --orange:#FF8B45; --orange-text:#FFA06A; --orange-soft:#2E1C11;
+  --red:#E8775C; --red-soft:#2E1711;
+  --on-brand:#1A1309; --mark-other:#6B5C51;
+  --capa-bg:#3A2817; --capa-fg:#F7EFE7; --capa-eyebrow:#FFA06A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:15px;
+  line-height:1.55;margin:0;-webkit-text-size-adjust:100%}
+.wrap{max-width:540px;margin:0 auto;padding-inline:16px;padding-block:0 40px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── assinatura ── */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);
+  border-bottom:1px solid var(--line);margin-inline:-16px;padding:11px 16px;
+  display:flex;align-items:center;gap:10px}
+.mark{display:flex;align-items:center;min-width:0}
+.mark img{height:28px;width:auto;display:block}
+.mark img.logo-dark{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .mark img.logo-light{display:none}
+  :root:not([data-theme="light"]) .mark img.logo-dark{display:block}}
+:root[data-theme="dark"] .mark img.logo-light{display:none}
+:root[data-theme="dark"] .mark img.logo-dark{display:block}
+.top .sp{margin-left:auto}
+.ghost{appearance:none;background:none;border:1px solid var(--line);color:var(--ink2);
+  font:inherit;font-size:13px;padding:7px 13px;border-radius:999px;cursor:pointer}
+.ghost:hover{border-color:var(--brown);color:var(--brown-deep)}
+
+/* ── tipografia ── */
+h1{font-family:var(--fd);font-weight:700;font-size:25px;line-height:1.18;letter-spacing:-.015em;
+  margin:26px 0 6px;text-wrap:balance}
+.sub{color:var(--ink2);margin:0 0 22px;font-size:15px}
+h2{font-family:var(--fd);font-weight:600;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--brown-deep);margin:30px 0 10px}
+
+/* ── capa ── */
+.capa{background:var(--capa-bg);border-radius:var(--r);padding:24px 20px 26px;margin:18px 0 22px}
+.capa .slogan{font-family:var(--fd);font-weight:600;font-size:11.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--capa-eyebrow);margin:0 0 10px}
+.capa h1{color:var(--capa-fg);margin:0;font-size:27px}
+.capa .sub{color:var(--capa-fg);opacity:.9;margin:0;font-size:15px}
+
+/* ── escolha de rota ── */
+.routes{display:grid;gap:12px}
+.route{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:17px;cursor:pointer;font:inherit;color:inherit;
+  transition:border-color .15s,transform .1s}
+.route:hover{border-color:var(--orange)}
+.route:active{transform:scale(.995)}
+.route b{display:block;font-family:var(--fd);font-weight:600;font-size:18px;line-height:1.25;margin-bottom:4px}
+.route em{display:block;font-style:normal;color:var(--ink2);font-size:14px;line-height:1.5}
+.route .tag{display:inline-block;font-family:var(--fd);font-weight:600;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--orange-text);background:var(--orange-soft);
+  padding:4px 10px;border-radius:999px;margin-bottom:10px}
+
+/* ── passos ── */
+.dots{display:flex;gap:6px;align-items:center;margin:22px 0 4px}
+.dot{height:4px;flex:1;border-radius:2px;background:var(--line)}
+.dot.on{background:var(--orange)}
+.stepno{font-family:var(--fd);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink2);margin:14px 0 0}
+
+.field{margin-bottom:18px}
+label{display:block;font-size:14px;color:var(--ink2);margin-bottom:6px}
+input,select{width:100%;font:inherit;font-size:17px;padding:13px 14px;border-radius:11px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);font-variant-numeric:tabular-nums}
+input:focus,select:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:var(--orange)}
+.unit{position:relative}
+.unit input{padding-right:66px}
+.unit .u{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ink2);
+  font-size:14px;pointer-events:none}
+.hint{font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.5}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:380px){.two{grid-template-columns:1fr}}
+
+.nav{display:flex;gap:10px;margin-top:26px}
+.btn{flex:1;appearance:none;border:none;border-radius:11px;font-family:var(--fd);font-weight:600;
+  font-size:16px;padding:15px;cursor:pointer;background:var(--brown);color:var(--on-brand)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sec{flex:0 0 auto;background:var(--sunk);color:var(--ink);border:1px solid var(--line);padding-inline:20px}
+
+/* ── resultado ── */
+.who{font-family:var(--fd);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink2);margin:24px 0 2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.hero{background:var(--orange-soft);border-color:transparent}
+.hero .big{font-family:var(--fd);font-weight:700;font-size:36px;line-height:1.05;color:var(--orange-text);
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.hero .cap{color:var(--ink2);font-size:14px;margin-top:6px}
+
+.rows{display:grid;gap:0}
+.row{display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .k{flex:1;min-width:0;font-size:14px;color:var(--ink2);line-height:1.4}
+.row .v{font-family:var(--fd);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .v.g{color:var(--orange-text)}
+.row.tot{border-top:2px solid var(--line);margin-top:4px;padding-top:12px}
+.row.tot .k{color:var(--ink);font-weight:600}
+.row.tot .v{font-size:20px}
+
+.badge{display:inline-block;font-family:var(--fd);font-weight:600;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.b-ok{background:var(--orange-soft);color:var(--orange-text)}
+.b-warn{background:var(--brown-soft);color:var(--brown-deep)}
+.b-bad{background:var(--red-soft);color:var(--red)}
+
+/* ── barras ── */
+.bars{display:grid;gap:12px;margin-top:4px}
+.bar .lab{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;
+  color:var(--ink2);margin-bottom:5px}
+.bar .lab b{font-family:var(--fd);font-weight:600;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums}
+.track{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden}
+.fill{height:100%;border-radius:6px}
+.fill.mix{background:var(--orange)}
+.fill.oth{background:var(--mark-other)}
+
+.note{background:var(--sunk);border-radius:var(--r);padding:14px 16px;font-size:14px;color:var(--ink2);margin-bottom:12px}
+.note b{color:var(--ink);font-weight:600}
+.alert{background:var(--brown-soft);border-radius:var(--r);padding:14px 16px;font-size:14px;
+  color:var(--brown-deep);margin-bottom:12px}
+.alert b{font-weight:700}
+.speech{background:var(--card);border:2px solid var(--orange);border-radius:var(--r);padding:17px;margin-bottom:12px}
+.speech .t{font-family:var(--fd);font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--orange-text);margin-bottom:8px}
+.speech p{margin:0;font-size:16px;line-height:1.6}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;margin-bottom:12px}
+summary{cursor:pointer;font-size:14px;color:var(--ink2);font-weight:600}
+summary::marker{color:var(--brown)}
+details[open] summary{margin-bottom:12px}
+
+.foot{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
+.foot p{margin:0 0 6px}
+
+@media print{
+  :root{--paper:#fff;--card:#fff;--sunk:#F2EDE7;--ink:#231F20;--ink2:#5A514B;--line:#CFC4B9;
+    --brown:#996437;--brown-deep:#6F4726;--brown-soft:#F2E7DB;
+    --orange:#F37021;--orange-text:#B04D0C;--orange-soft:#FDEBDE;--mark-other:#BCAC9D;
+    --capa-bg:#996437;--capa-fg:#FFFFFF;--capa-eyebrow:#FFD9BC}
+  .nav,.noprint,#restart{display:none!important}
+  .top{position:static;border-bottom:2px solid var(--brown);margin:0 0 4px;padding:0 0 10px}
+  .mark img.logo-dark{display:none!important} .mark img.logo-light{display:block!important}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .card,.note,.speech,details,.bar{break-inside:avoid}
+  details{border:none;padding:0}
+  details summary{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="top noprint">
+    <div class="mark" id="marca"></div>
+    <div class="sp"></div>
+    <button class="ghost" id="restart" hidden>Nova simulação</button>
+  </div>
+
+  <!-- HOME -->
+  <section id="s-home">
+    <div class="capa">
+      <p class="slogan">Matéria orgânica transforma</p>
+      <h1>Simulador Tera Mix</h1>
+    </div>
+    <div class="routes">
+      <button class="route" data-go="base">
+        <span class="tag">Cliente que já compra</span>
+        <b>Tera Base × Tera Mix</b>
+        <em>Quanto de nutriente a mais ele leva e quanto isso custa por hectare.</em>
+      </button>
+      <button class="route" data-go="min">
+        <span class="tag">Cliente de fertilizante mineral</span>
+        <b>Tera Mix × adubo químico</b>
+        <em>Comparação por hectare e quanto de químico ainda precisa entrar junto.</em>
+      </button>
+    </div>
+    <div class="foot">
+      <p>Tera Nutrição Vegetal · versão <span id="ver"></span> · referência <span id="ref"></span></p>
+    </div>
+  </section>
+
+  <!-- FORMULÁRIO -->
+  <section id="s-form" hidden>
+    <div class="dots" id="dots"></div>
+    <p class="stepno" id="stepno"></p>
+    <h2 class="q" id="qtitle" style="font-size:22px;letter-spacing:-.01em;text-transform:none;color:var(--ink);margin:5px 0 18px;line-height:1.25"></h2>
+    <div id="qbody"></div>
+    <div class="nav">
+      <button class="btn sec" id="back">Voltar</button>
+      <button class="btn" id="next">Continuar</button>
+    </div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section id="s-res" hidden>
+    <div id="out"></div>
+    <div class="nav noprint">
+      <button class="btn sec" id="edit">Ajustar</button>
+      <button class="btn" id="pdf">Gerar PDF</button>
+    </div>
+    <p class="hint noprint" id="pdfnote" hidden style="text-align:center">O PDF funciona no aplicativo instalado no celular.</p>
+  </section>
+</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════
+   CONFIGURAÇÃO DA EMPRESA — alterar somente aqui.
+   Teores em base úmida (%), matéria orgânica em kg por tonelada.
+   ══════════════════════════════════════════════════════════════ */
+var CFG = {
+  versao: "1.0",
+  referencia: "outubro/2026",
+  reajuste: 0.25,
+  taxaCama: 0.15,
+  /* mo = matéria seca em kg por tonelada */
+  base: { n:0.8631, p:0.9500, k:0.6351, mo:523.1 },
+  mix:  { n:1.0436, p:1.1273, k:0.8473, mo:567.7 },
+  /* substâncias húmicas: % do produto como é vendido. Mesmo teor para os dois produtos. */
+  humicas: 10.0,
+  /* zinco em kg por tonelada do produto como é vendido */
+  zinco: 0.3,
+  /* logotipo: cole aqui a imagem em data URI ("data:image/png;base64,...").
+     Vazio = usa a assinatura tipográfica. */
+  logo: "data:image/png;base64,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",
+  logoEscuro: "data:image/png;base64,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",
+  fontes: {
+    map:   { nome:"MAP 11-52-00",   n:11, p:52, k:0,  preco:4500 },
+    kcl:   { nome:"KCl 00-00-60",   n:0,  p:0,  k:60, preco:2900 },
+    ureia: { nome:"Ureia 45-00-00", n:45, p:0,  k:0,  preco:3200 }
+  },
+  minerais: [
+    { nome:"Formulado 04-14-08", n:4,  p:14, k:8,  preco:2600 },
+    { nome:"Formulado 08-28-16", n:8,  p:28, k:16, preco:3900 },
+    { nome:"Formulado 20-00-20", n:20, p:0,  k:20, preco:3400 },
+    { nome:"Formulado 10-10-10", n:10, p:10, k:10, preco:2900 },
+    { nome:"MAP 11-52-00",       n:11, p:52, k:0,  preco:4500 },
+    { nome:"KCl 00-00-60",       n:0,  p:0,  k:60, preco:2900 },
+    { nome:"Ureia 45-00-00",     n:45, p:0,  k:0,  preco:3200 }
+  ]
+};
+
+var pts = function(o){ return o.n + o.p + o.k; };
+var HUM_BASE = CFG.humicas*10;   /* kg por tonelada */
+var HUM_MIX  = CFG.humicas*10;
+var ZN = CFG.zinco;              /* kg por tonelada */
+var PB = pts(CFG.base), PM = pts(CFG.mix);
+var EQ = PM/PB - 1;
+
+/* formatação */
+var nf = function(d){ return new Intl.NumberFormat("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d}); };
+var f0=nf(0), f1=nf(1), f2=nf(2);
+function brl(v,d){ return "R$ " + nf(d===undefined?2:d).format(v); }
+function pc(v,d){ return nf(d===undefined?1:d).format(v*100) + "%"; }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+/* estado */
+var ST = { rota:null, passo:0, d:{} };
+var EMB = (function(){ try { return window.self !== window.top; } catch(e){ return true; } })();
+
+/* memória local (conveniência) */
+function save(){ try{ localStorage.setItem("tmix", JSON.stringify(ST.d)); }catch(e){} }
+function load(){ try{ var v=localStorage.getItem("tmix"); if(v) ST.d=JSON.parse(v)||{}; }catch(e){} }
+load();
+
+/* ══════════════ PERGUNTAS ══════════════ */
+var PASSOS = {
+  base: [
+    { t:"Para qual cliente é a simulação?", c:function(d){ return ''+
+      campo("cliente","Cliente ou fazenda","text",d.cliente||"","",'placeholder="Opcional — aparece no PDF"')+
+      campo("cultura","Cultura","text",d.cultura||"","",'placeholder="Ex.: café, cana, citros"'); },
+      ok:function(){ return true; } },
+    { t:"Quanto ele paga hoje no Tera Base?", c:function(d){ return ''+
+      campo("pbase","Preço posto na fazenda","number",d.pbase||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="180"')+
+      '<p class="hint">Use o preço que esse cliente paga, não o de tabela.</p>'; },
+      ok:function(d){ return d.pbase>0; } },
+    { t:"Quanto ele aplica por hectare?", c:function(d){ return ''+
+      campo("dose","Dose de composto","number",d.dose||"","t/ha",'inputmode="decimal" step="0.1" min="0.1" placeholder="5"')+
+      '<p class="hint">A mesma dose nos dois produtos. É assim que o cliente vai comprar.</p>'; },
+      ok:function(d){ return d.dose>0; } }
+  ],
+  min: [
+    { t:"Para qual cliente é a simulação?", c:function(d){ return ''+
+      campo("cliente","Cliente ou fazenda","text",d.cliente||"","",'placeholder="Opcional — aparece no PDF"')+
+      campo("cultura","Cultura","text",d.cultura||"","",'placeholder="Ex.: café, cana, citros"'); },
+      ok:function(){ return true; } },
+    { t:"Qual adubo ele usa hoje?", c:function(d){
+        var o = CFG.minerais.map(function(m,i){
+          return '<option value="'+i+'"'+(String(d.midx)===String(i)?" selected":"")+'>'+esc(m.nome)+'</option>'; }).join("");
+        return '<div class="field"><label for="midx">Fertilizante</label><select id="midx">'+o+
+          '<option value="x"'+(d.midx==="x"?" selected":"")+'>Outro — informar N-P-K</option></select></div>'+
+          '<div id="custom" '+(d.midx==="x"?"":"hidden")+'><div class="two">'+
+          campo("cn","N (%)","number",d.cn||"","",'inputmode="decimal" step="0.1" min="0"')+
+          campo("cp","P2O5 (%)","number",d.cp||"","",'inputmode="decimal" step="0.1" min="0"')+
+          '</div>'+campo("ck","K2O (%)","number",d.ck||"","",'inputmode="decimal" step="0.1" min="0"')+'</div>'; },
+      ok:function(d){ if(d.midx!=="x") return d.midx!==undefined && d.midx!==""; 
+        return ((d.cn||0)+(d.cp||0)+(d.ck||0))>0; } },
+    { t:"Dose e preço do adubo mineral", c:function(d){ return ''+
+      campo("mdose","Dose aplicada","number",d.mdose||"","kg/ha",'inputmode="decimal" step="10" min="1" placeholder="500"')+
+      campo("mpreco","Preço posto na fazenda","number",d.mpreco||"","R$/t",'inputmode="decimal" step="50" min="1" placeholder="2600"')+
+      '<p class="hint">Use a cotação que o cliente recebeu, com frete. Sem frete a conta fica a favor do mineral.</p>'; },
+      ok:function(d){ return d.mdose>0 && d.mpreco>0; } },
+    { t:"Quanto ele pagaria no Tera Base?", c:function(d){ return ''+
+      campo("pbase","Preço posto na fazenda","number",d.pbase||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="180"')+
+      '<p class="hint">O preço do Tera Mix sai deste valor com o reajuste da política comercial.</p>'; },
+      ok:function(d){ return d.pbase>0; } },
+    { t:"Cotação do complemento hoje", c:function(d){ return ''+
+      '<p class="hint" style="margin:-6px 0 16px">Pergunte ao produtor o que ele está pagando hoje. '+
+      'A conta do complemento usa estes preços — se estiverem desatualizados, a comparação perde força.</p>'+
+      campo("pmap","MAP 11-52-00","number",(d.pmap||CFG.fontes.map.preco),"R$/t",'inputmode="decimal" step="50" min="0"')+
+      campo("pkcl","KCl 00-00-60","number",(d.pkcl||CFG.fontes.kcl.preco),"R$/t",'inputmode="decimal" step="50" min="0"')+
+      campo("pureia","Ureia 45-00-00","number",(d.pureia||CFG.fontes.ureia.preco),"R$/t",'inputmode="decimal" step="50" min="0"')+
+      '<p class="hint">Os valores já vêm preenchidos como referência. Troque pelos do dia.</p>'; },
+      ok:function(d){ return d.pmap>0 && d.pkcl>0 && d.pureia>0; } }
+  ]
+};
+
+function campo(id,lab,tipo,val,unid,extra){
+  var inp = '<input id="'+id+'" type="'+tipo+'" value="'+(val===""?"":esc(val))+'" '+(extra||"")+'>';
+  if(unid) inp = '<div class="unit">'+inp+'<span class="u">'+esc(unid)+'</span></div>';
+  return '<div class="field"><label for="'+id+'">'+esc(lab)+'</label>'+inp+'</div>';
+}
+
+/* ══════════════ NAVEGAÇÃO ══════════════ */
+var $ = function(id){ return document.getElementById(id); };
+function mostra(qual){
+  ["s-home","s-form","s-res"].forEach(function(s){ $(s).hidden = (s!==qual); });
+  $("restart").hidden = (qual==="s-home");
+  window.scrollTo(0,0);
+}
+function pinta(){
+  var ps = PASSOS[ST.rota], p = ps[ST.passo];
+  $("dots").innerHTML = ps.map(function(_,i){ return '<span class="dot'+(i<=ST.passo?" on":"")+'"></span>'; }).join("");
+  $("stepno").textContent = "Passo " + (ST.passo+1) + " de " + ps.length;
+  $("qtitle").textContent = p.t;
+  $("qbody").innerHTML = p.c(ST.d);
+  $("back").textContent = ST.passo===0 ? "Início" : "Voltar";
+  $("next").textContent = ST.passo===ps.length-1 ? "Ver resultado" : "Continuar";
+  valida();
+  var first = $("qbody").querySelector("input,select");
+  if(first && first.type!=="text") setTimeout(function(){ try{first.focus();}catch(e){} },60);
+}
+function colhe(){
+  var b = $("qbody");
+  Array.prototype.forEach.call(b.querySelectorAll("input,select"), function(el){
+    var v = el.value;
+    if(el.tagName==="SELECT"){ ST.d[el.id] = v; }
+    else if(el.type==="number"){ ST.d[el.id] = v===""?0:parseFloat(String(v).replace(",",".")); }
+    else { ST.d[el.id] = v; }
+  });
+  save();
+}
+function valida(){
+  colhe();
+  $("next").disabled = !PASSOS[ST.rota][ST.passo].ok(ST.d);
+}
+
+/* ══════════════ CÁLCULO ══════════════ */
+function calcBase(d){
+  var pb = d.pbase, pm = pb*(1+CFG.reajuste), D = d.dose;
+  var kgB = PB*10, kgM = PM*10;
+  return {
+    pb:pb, pm:pm, D:D,
+    kgB:kgB, kgM:kgM, dkg:kgM-kgB,
+    cB:pb/kgB, cM:pm/kgM, cAdd:(pm-pb)/(kgM-kgB),
+    varC:(pm/kgM)/(pb/kgB)-1,
+    haNutB:D*kgB, haNutM:D*kgM,
+    haMoB:D*CFG.base.mo, haMoM:D*CFG.mix.mo,
+    haCB:D*pb, haCM:D*pm
+  };
+}
+function mineralEscolhido(d){
+  if(d.midx==="x") return { nome:"Fertilizante do cliente", n:d.cn||0, p:d.cp||0, k:d.ck||0, preco:d.mpreco };
+  var m = CFG.minerais[parseInt(d.midx,10)] || CFG.minerais[0];
+  return { nome:m.nome, n:m.n, p:m.p, k:m.k, preco:d.mpreco };
+}
+function calcMin(d, doseMixForcada){
+  var m = mineralEscolhido(d);
+  var pb = d.pbase, pm = pb*(1+CFG.reajuste);
+  var Dm = d.mdose;                      // kg/ha
+  var pN = Dm*m.n/100, pP = Dm*m.p/100, pK = Dm*m.k/100;
+  var pT = pN+pP+pK;
+  var custoMin = Dm/1000*m.preco;
+  var doseIgual = pT/(PM*10);            // t/ha de Tera Mix que iguala o NPK
+  var dose = (doseMixForcada!==undefined && doseMixForcada>0) ? doseMixForcada : doseIgual;
+
+  var eN = dose*CFG.mix.n*10, eP = dose*CFG.mix.p*10, eK = dose*CFG.mix.k*10;
+  var custoMix = dose*pm;
+
+  var fN = Math.max(0,pN-eN), fP = Math.max(0,pP-eP), fK = Math.max(0,pK-eK);
+  var F = CFG.fontes;
+  var vMap = (d.pmap>0 ? d.pmap : F.map.preco);
+  var vKcl = (d.pkcl>0 ? d.pkcl : F.kcl.preco);
+  var vUre = (d.pureia>0 ? d.pureia : F.ureia.preco);
+  var kgMap = F.map.p>0 ? fP/(F.map.p/100) : 0;
+  var kgKcl = F.kcl.k>0 ? fK/(F.kcl.k/100) : 0;
+  var nJa   = kgMap*F.map.n/100 + kgKcl*F.kcl.n/100;
+  var kgUre = F.ureia.n>0 ? Math.max(0,fN-nJa)/(F.ureia.n/100) : 0;
+  var cMap = kgMap/1000*vMap, cKcl = kgKcl/1000*vKcl, cUre = kgUre/1000*vUre;
+  var compKg = kgMap+kgKcl+kgUre, compC = cMap+cKcl+cUre;
+
+  return {
+    m:m, pb:pb, pm:pm, Dm:Dm,
+    pN:pN,pP:pP,pK:pK,pT:pT, custoMin:custoMin, moMin:0,
+    doseIgual:doseIgual, dose:dose,
+    eN:eN,eP:eP,eK:eK,eT:eN+eP+eK, custoMix:custoMix, moMix:dose*CFG.mix.mo,
+    fN:fN,fP:fP,fK:fK,
+    sN:Math.max(0,eN-pN), sP:Math.max(0,eP-pP), sK:Math.max(0,eK-pK),
+    kgMap:kgMap,kgKcl:kgKcl,kgUre:kgUre,cMap:cMap,cKcl:cKcl,cUre:cUre,
+    vMap:vMap,vKcl:vKcl,vUre:vUre,
+    compKg:compKg, compC:compC,
+    totalComb: dose*pm + compC,
+    economia: custoMin - (dose*pm + compC),
+    tonComb: dose + compKg/1000
+  };
+}
+
+/* ══════════════ RENDER ══════════════ */
+function cab(d){
+  var who = [d.cliente,d.cultura].filter(Boolean).map(esc).join(" · ");
+  return (who? '<p class="who">'+who+'</p>':'') ;
+}
+function barras(items){
+  var max = Math.max.apply(null, items.map(function(i){ return i.v; })) || 1;
+  return '<div class="bars">'+items.map(function(i){
+    return '<div class="bar"><div class="lab"><span>'+esc(i.nome)+'</span><b>'+i.txt+'</b></div>'+
+      '<div class="track"><div class="fill '+(i.mix?"mix":"oth")+'" style="width:'+(100*i.v/max).toFixed(1)+'%"></div></div></div>';
+  }).join("")+'</div>';
+}
+function linha(k,v,cls){ return '<div class="row'+(cls&&cls.indexOf("tot")>=0?" tot":"")+'"><span class="k">'+k+'</span><span class="v '+(cls||"")+'">'+v+'</span></div>'; }
+
+function renderBase(){
+  var d = ST.d, r = calcBase(d);
+  var sel = r.varC<=0.02 ? "b-ok" : (r.varC<=0.06 ? "b-warn" : "b-bad");
+  var h = "";
+  h += cab(d);
+  h += '<h1 style="margin-top:4px">Tera Base × Tera Mix</h1>';
+  h += '<p class="sub">Mesma dose de '+f1.format(r.D)+' t/ha nos dois produtos.</p>';
+
+  h += '<div class="card hero"><div class="big">+'+f1.format(r.dkg)+' kg</div>'+
+       '<div class="cap">de nutriente a mais por tonelada no Tera Mix</div></div>';
+
+  h += '<h2>O que muda por tonelada</h2><div class="card"><div class="rows">'+
+       linha("Preço do Tera Base", brl(r.pb)) +
+       linha("Preço do Tera Mix", brl(r.pm), "g") +
+       linha("Nutriente no Tera Base", f1.format(r.kgB)+" kg") +
+       linha("Nutriente no Tera Mix", f1.format(r.kgM)+" kg", "g") +
+       linha("Matéria seca a mais", "+"+f0.format(CFG.mix.mo-CFG.base.mo)+" kg", "g") +
+       '</div></div>';
+
+  h += '<h2>Quanto custa o nutriente</h2><div class="card"><div class="rows">'+
+       linha("No Tera Base", brl(r.cB)+" / kg") +
+       linha("No Tera Mix", brl(r.cM)+" / kg") +
+       linha("Diferença", '<span class="badge '+sel+'">'+(r.varC>=0?"+":"")+pc(r.varC)+'</span>') +
+       '</div></div>';
+
+  h += '<h2>Por hectare</h2><div class="card">'+
+       barras([
+         {nome:"Tera Base — nutriente", v:r.haNutB, txt:f0.format(r.haNutB)+" kg/ha", mix:false},
+         {nome:"Tera Mix — nutriente",  v:r.haNutM, txt:f0.format(r.haNutM)+" kg/ha", mix:true}
+       ])+
+       '<div class="rows" style="margin-top:14px">'+
+       linha("Nutriente a mais", "+"+f0.format(r.haNutM-r.haNutB)+" kg/ha","g")+
+       linha("Matéria seca a mais", "+"+f0.format(r.haMoM-r.haMoB)+" kg/ha","g")+
+       linha("Custo do Tera Base", brl(r.haCB,0)+" /ha")+
+       linha("Custo do Tera Mix", brl(r.haCM,0)+" /ha")+
+       linha("Investimento a mais", brl(r.haCM-r.haCB,0)+" /ha","tot")+
+       '</div></div>';
+
+  h += '<div class="speech"><div class="t">Para falar com o cliente</div><p>'+
+       "Na mesma dose de "+f1.format(r.D)+" t/ha, o senhor leva <b>"+f0.format(r.haNutM-r.haNutB)+
+       " kg de nutriente a mais</b> e <b>"+f0.format(r.haMoM-r.haMoB)+" kg de matéria seca a mais</b> por hectare, "+
+       "investindo <b>"+brl(r.haCM-r.haCB,0)+" a mais por hectare</b>. "+
+       (r.varC<=0.02
+         ? "O quilo do nutriente fica praticamente no mesmo preço: "+brl(r.cB)+" contra "+brl(r.cM)+"."
+         : "O quilo do nutriente sai a "+brl(r.cM)+" contra "+brl(r.cB)+" de hoje.")+
+       '</p></div>';
+
+  h += '<details><summary>Detalhe técnico para o vendedor</summary><div class="rows">'+
+       linha("Pontos de NPK — Tera Base", f2.format(PB))+
+       linha("Pontos de NPK — Tera Mix", f2.format(PM))+
+       linha("Ganho de nutriente", "+"+pc(PM/PB-1))+
+       '</div><p class="hint">Um ponto é 1% de nutriente na tonelada. O Tera Mix entrega '+
+       f1.format(PM*10)+' kg de NPK por tonelada contra '+f1.format(PB*10)+' kg do Tera Base.</p></details>';
+
+  h += rodape();
+  return h;
+}
+
+function renderMin(){
+  var d = ST.d, r = calcMin(d, ST.d.doseMix);
+  var h = "";
+  h += cab(d);
+  h += '<h1 style="margin-top:4px">Tera Mix × '+esc(r.m.nome)+'</h1>';
+  h += '<p class="sub">Programa atual: '+f0.format(r.Dm)+' kg/ha a '+brl(r.m.preco,0)+'/t.</p>';
+
+  var econ = r.custoMin - r.custoMix;
+  h += '<div class="card hero"><div class="big">'+f2.format(r.doseIgual)+' t/ha</div>'+
+       '<div class="cap">de Tera Mix entregam os mesmos '+f0.format(r.pT)+' kg de NPK por hectare</div></div>';
+
+  h += '<h2>Custo por hectare</h2><div class="card">'+
+       barras([
+         {nome:esc(r.m.nome), v:r.custoMin, txt:brl(r.custoMin,0), mix:false},
+         {nome:"Tera Mix", v:r.doseIgual*r.pm, txt:brl(r.doseIgual*r.pm,0), mix:true}
+       ])+
+       '<div class="rows" style="margin-top:14px">'+
+       linha(econ>=0?"Economia por hectare":"Custo a mais por hectare",
+             brl(Math.abs(r.custoMin-r.doseIgual*r.pm),0), econ>=0?"g tot":"tot")+
+       linha("Matéria seca que o mineral não leva", "+"+f0.format(r.doseIgual*CFG.mix.mo)+" kg/ha","g")+
+       linha("Substâncias húmicas", "+"+f0.format(r.doseIgual*HUM_MIX)+" kg/ha","g")+
+       linha("Zinco", "+"+f1.format(r.doseIgual*ZN)+" kg/ha","g")+
+       '</div></div>';
+
+  h += '<h2>Balanço nutriente a nutriente</h2><div class="card"><div class="rows">'+
+       nutLinha("N", r.pN, r.doseIgual*CFG.mix.n*10) +
+       nutLinha("P2O5", r.pP, r.doseIgual*CFG.mix.p*10) +
+       nutLinha("K2O", r.pK, r.doseIgual*CFG.mix.k*10) +
+       '</div><p class="hint">Igualar o total de NPK não iguala o balanço. O que faltar entra como complemento abaixo.</p></div>';
+
+  /* programa combinado */
+  h += '<h2>Programa combinado</h2>';
+  h += '<div class="card noprint"><label for="doseMix">Dose de Tera Mix que você quer vender</label>'+
+       '<div class="unit"><input id="doseMix" type="text" inputmode="decimal" value="'+
+       r.dose.toFixed(2).replace(".",",")+'"><span class="u">t/ha</span></div>'+
+       '<p class="hint">Sugestão para igualar o NPK: '+f2.format(r.doseIgual)+' t/ha.</p></div>';
+
+  h += '<div class="card"><div class="rows">'+
+       linha("Tera Mix", f2.format(r.dose)+" t/ha","g")+
+       (r.kgMap>0.05 ? linha(esc(CFG.fontes.map.nome)+" — fecha P", f0.format(r.kgMap)+" kg/ha") : "")+
+       (r.kgKcl>0.05 ? linha(esc(CFG.fontes.kcl.nome)+" — fecha K", f0.format(r.kgKcl)+" kg/ha") : "")+
+       (r.kgUre>0.05 ? linha(esc(CFG.fontes.ureia.nome)+" — fecha N", f0.format(r.kgUre)+" kg/ha") : "")+
+       (r.compKg<=0.05 ? linha("Complemento mineral","nenhum","g") : linha("Total do complemento", f0.format(r.compKg)+" kg/ha","tot"))+
+       '</div>'+
+       (r.compKg>0.05 ? '<p class="hint">Cotação informada: MAP '+brl(r.vMap,0)+'/t · KCl '+brl(r.vKcl,0)+
+         '/t · Ureia '+brl(r.vUre,0)+'/t.</p>' : '')+
+       '</div>';
+
+  var e2 = r.economia;
+  h += '<div class="card"><div class="rows">'+
+       linha("Programa atual", brl(r.custoMin,0)+" /ha")+
+       linha("Tera Mix + complemento", brl(r.totalComb,0)+" /ha")+
+       linha(e2>=0?"Economia por hectare":"Custo a mais por hectare", brl(Math.abs(e2),0)+" /ha", (e2>=0?"g ":"")+"tot")+
+       linha("Matéria seca", "+"+f0.format(r.moMix)+" kg/ha","g")+
+       linha("Substâncias húmicas", "+"+f0.format(r.dose*HUM_MIX)+" kg/ha","g")+
+       linha("Zinco", "+"+f1.format(r.dose*ZN)+" kg/ha","g")+
+       linha("Tonelagem aplicada", f2.format(r.tonComb)+" t/ha")+
+       '</div></div>';
+
+  h += '<div class="speech"><div class="t">Para falar com o cliente</div><p>'+
+       "Aplicando <b>"+f2.format(r.dose)+" t/ha de Tera Mix</b>"+
+       (r.compKg>0.05 ? " mais <b>"+f0.format(r.compKg)+" kg/ha</b> de complemento mineral" : "")+
+       ", o senhor entrega o mesmo N, P e K do programa de hoje"+
+       (e2>=0 ? " e economiza <b>"+brl(e2,0)+" por hectare</b>" : " com <b>"+brl(-e2,0)+" a mais por hectare</b>")+
+       ". E leva por hectare <b>"+f0.format(r.moMix)+" kg de matéria seca</b>, dos quais <b>"+
+       f0.format(r.dose*HUM_MIX)+" kg são substâncias húmicas</b> e <b>"+
+       f1.format(r.dose*ZN)+" kg de zinco</b> — nada disso o adubo químico entrega."+
+       '</p></div>';
+
+  h += '<div class="alert"><b>Confira antes de apresentar.</b> Todos os preços de fertilizante desta conta são '+
+       'os que o próprio produtor informou, posto na fazenda. Se algum estiver desatualizado, volte em Ajustar e corrija.</div>';
+
+  h += '<details><summary>Detalhe técnico para o vendedor</summary><div class="rows">'+
+       linha("Pontos do "+esc(r.m.nome), f2.format(r.m.n+r.m.p+r.m.k))+
+       linha("Pontos do Tera Mix", f2.format(PM))+
+       linha("R$ por ponto — mineral", brl(r.m.preco/(r.m.n+r.m.p+r.m.k)))+
+       linha("R$ por ponto — Tera Mix", brl(r.pm/PM))+
+       linha("Preço do Tera Mix", brl(r.pm))+
+       '</div></details>';
+
+  h += rodape();
+  return h;
+}
+function nutLinha(nome, prog, entrega){
+  var dif = entrega-prog;
+  var b = dif>=0 ? '<span class="badge b-ok">sobra '+f0.format(dif)+' kg</span>'
+                 : '<span class="badge b-warn">falta '+f0.format(-dif)+' kg</span>';
+  return '<div class="row"><span class="k">'+nome+' — programa '+f0.format(prog)+' kg/ha</span><span class="v">'+b+'</span></div>';
+}
+function rodape(){
+  return '<div class="foot"><p>Comparação de custo entre produtos, não recomendação agronômica. '+
+    'Nutriente orgânico não tem a mesma prontidão do mineral.</p>'+
+    '<p>Compare sempre posto na fazenda contra posto na fazenda.</p>'+
+    '<p>Tera Nutrição Vegetal · simulador v'+CFG.versao+' · referência '+CFG.referencia+'</p></div>';
+}
+
+function resultado(){
+  $("out").innerHTML = (ST.rota==="base") ? renderBase() : renderMin();
+  var dm = $("doseMix");
+  if(dm) dm.addEventListener("change", function(){
+    var v = parseFloat(String(dm.value).replace(",","."));
+    ST.d.doseMix = (v>0 ? v : undefined); save(); resultado();
+  });
+  mostra("s-res");
+}
+
+/* ══════════════ EVENTOS ══════════════ */
+$("qbody").addEventListener("input", valida);
+$("qbody").addEventListener("change", function(e){
+  if(e.target && e.target.id==="midx"){ var c=$("custom"); if(c) c.hidden = (e.target.value!=="x"); }
+  valida();
+});
+Array.prototype.forEach.call(document.querySelectorAll(".route"), function(b){
+  b.addEventListener("click", function(){
+    ST.rota = b.getAttribute("data-go"); ST.passo = 0; ST.d.doseMix = undefined;
+    mostra("s-form"); pinta();
+  });
+});
+$("next").addEventListener("click", function(){
+  colhe();
+  var ps = PASSOS[ST.rota];
+  if(!ps[ST.passo].ok(ST.d)) return;
+  if(ST.passo < ps.length-1){ ST.passo++; pinta(); window.scrollTo(0,0); }
+  else { ST.d.doseMix = undefined; resultado(); }
+});
+$("back").addEventListener("click", function(){
+  colhe();
+  if(ST.passo===0){ mostra("s-home"); } else { ST.passo--; pinta(); }
+});
+$("edit").addEventListener("click", function(){
+  ST.passo = PASSOS[ST.rota].length-1; mostra("s-form"); pinta();
+});
+$("restart").addEventListener("click", function(){ ST.passo=0; ST.d.doseMix=undefined; mostra("s-home"); });
+$("pdf").addEventListener("click", function(){
+  Array.prototype.forEach.call(document.querySelectorAll("#out details"), function(x){ x.open = true; });
+  try{ window.print(); }catch(e){}
+});
+if(EMB){ $("pdf").hidden = true; $("pdfnote").hidden = false; $("edit").style.flex = "1"; }
+
+(function(){
+  var m = $("marca");
+  m.innerHTML = '<img class="logo-light" src="'+CFG.logo+'" alt="Tera Nutrição Vegetal">'+
+                '<img class="logo-dark" src="'+CFG.logoEscuro+'" alt="">';
+})();
+$("ver").textContent = CFG.versao;
+$("ref").textContent = CFG.referencia;
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").then(function (reg) {
+      reg.addEventListener("updatefound", function () {
+        var novo = reg.installing;
+        if (!novo) return;
+        novo.addEventListener("statechange", function () {
+          if (novo.state === "installed" && navigator.serviceWorker.controller) {
+            location.reload();   /* versão nova disponível: recarrega sozinho */
+          }
+        });
+      });
+    }).catch(function () { /* sem service worker o app continua funcionando */ });
+  });
+}
+</script>
+</body>
+</html>
