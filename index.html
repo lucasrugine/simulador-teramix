@@ -273,7 +273,7 @@ details[open] summary{margin-bottom:12px}
    Teores em base úmida (%), matéria orgânica em kg por tonelada.
    ══════════════════════════════════════════════════════════════ */
 var CFG = {
-  versao: "1.2",
+  versao: "1.3",
   referencia: "outubro/2026",
   reajuste: 0.25,
   taxaCama: 0.15,
@@ -335,9 +335,10 @@ var PASSOS = {
       campo("cultura","Cultura","text",d.cultura||"","",'placeholder="Ex.: café, cana, citros"'); },
       ok:function(){ return true; } },
     { t:"Quanto ele paga hoje no Tera Base?", c:function(d){ return ''+
-      campo("pbase","Preço posto na fazenda","number",d.pbase||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="180"')+
-      '<p class="hint">Use o preço que esse cliente paga, não o de tabela.</p>'; },
-      ok:function(d){ return d.pbase>0; } },
+      campo("pprod","Preço do Tera Base (sem frete)","number",d.pprod||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="150"')+
+      campo("frete","Frete até a fazenda","number",(d.frete===undefined?"":d.frete),"R$/t",'inputmode="decimal" step="1" min="0" placeholder="30"')+
+      '<p class="hint">Separe os dois. O reajuste do Tera Mix incide só sobre o produto — o frete entra depois, sem acréscimo.</p>'; },
+      ok:function(d){ return d.pprod>0; } },
     { t:"Quanto ele aplica por hectare?", c:function(d){ return ''+
       campo("dose","Dose de composto","number",d.dose||"","t/ha",'inputmode="decimal" step="0.1" min="0.1" placeholder="5"')+
       '<p class="hint">A mesma dose nos dois produtos. É assim que o cliente vai comprar.</p>'; },
@@ -365,9 +366,10 @@ var PASSOS = {
       '<p class="hint">Use a cotação que o cliente recebeu, com frete. Sem frete a conta fica a favor do mineral.</p>'; },
       ok:function(d){ return d.mdose>0 && d.mpreco>0; } },
     { t:"Quanto ele pagaria no Tera Base?", c:function(d){ return ''+
-      campo("pbase","Preço posto na fazenda","number",d.pbase||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="180"')+
-      '<p class="hint">O preço do Tera Mix sai deste valor com o reajuste da política comercial.</p>'; },
-      ok:function(d){ return d.pbase>0; } },
+      campo("pprod","Preço do Tera Base (sem frete)","number",d.pprod||"","R$/t",'inputmode="decimal" step="1" min="1" placeholder="150"')+
+      campo("frete","Frete até a fazenda","number",(d.frete===undefined?"":d.frete),"R$/t",'inputmode="decimal" step="1" min="0" placeholder="30"')+
+      '<p class="hint">O reajuste do Tera Mix incide só sobre o produto. O frete é somado depois, sem acréscimo.</p>'; },
+      ok:function(d){ return d.pprod>0; } },
     { t:"Cotação do complemento hoje", c:function(d){ return ''+
       '<p class="hint" style="margin:-6px 0 16px">Pergunte ao produtor o que ele está pagando hoje. '+
       'A conta do complemento usa estes preços — se estiverem desatualizados, a comparação perde força.</p>'+
@@ -421,10 +423,13 @@ function valida(){
 
 /* ══════════════ CÁLCULO ══════════════ */
 function calcBase(d){
-  var pb = d.pbase, pm = pb*(1+CFG.reajuste), D = d.dose;
+  var fr = d.frete || 0;
+  var pb = d.pprod + fr;                      /* Tera Base posto na fazenda */
+  var pm = d.pprod*(1+CFG.reajuste) + fr;     /* Tera Mix posto: reajuste só no produto */
+  var D = d.dose;
   var kgB = PB*10, kgM = PM*10;
   return {
-    pb:pb, pm:pm, D:D,
+    pb:pb, pm:pm, D:D, prod:d.pprod, frete:fr, prodMix:d.pprod*(1+CFG.reajuste),
     kgB:kgB, kgM:kgM, dkg:kgM-kgB,
     cB:pb/kgB, cM:pm/kgM, cAdd:(pm-pb)/(kgM-kgB),
     varC:(pm/kgM)/(pb/kgB)-1,
@@ -440,7 +445,9 @@ function mineralEscolhido(d){
 }
 function calcMin(d, doseMixForcada){
   var m = mineralEscolhido(d);
-  var pb = d.pbase, pm = pb*(1+CFG.reajuste);
+  var fr = d.frete || 0;
+  var pb = d.pprod + fr;
+  var pm = d.pprod*(1+CFG.reajuste) + fr;
   var Dm = d.mdose;                      // kg/ha
   var pN = Dm*m.n/100, pP = Dm*m.p/100, pK = Dm*m.k/100;
   var pT = pN+pP+pK;
@@ -464,7 +471,7 @@ function calcMin(d, doseMixForcada){
   var compKg = kgMap+kgKcl+kgUre, compC = cMap+cKcl+cUre;
 
   return {
-    m:m, pb:pb, pm:pm, Dm:Dm,
+    m:m, pb:pb, pm:pm, Dm:Dm, prod:d.pprod, frete:fr, prodMix:d.pprod*(1+CFG.reajuste),
     pN:pN,pP:pP,pK:pK,pT:pT, custoMin:custoMin, moMin:0,
     doseIgual:doseIgual, dose:dose,
     eN:eN,eP:eP,eK:eK,eT:eN+eP+eK, custoMix:custoMix, moMix:dose*CFG.mix.mo,
@@ -505,8 +512,8 @@ function renderBase(){
        '<div class="cap">de nutriente a mais por tonelada no Tera Mix</div></div>';
 
   h += '<h2>O que muda por tonelada</h2><div class="card"><div class="rows">'+
-       linha("Preço do Tera Base", brl(r.pb)) +
-       linha("Preço do Tera Mix", brl(r.pm), "g") +
+       linha("Preço do Tera Base posto", brl(r.pb)) +
+       linha("Preço do Tera Mix posto", brl(r.pm), "g") +
        linha("Nutriente no Tera Base", f1.format(r.kgB)+" kg") +
        linha("Nutriente no Tera Mix", f1.format(r.kgM)+" kg", "g") +
        linha("Matéria seca a mais", "+"+f0.format(CFG.mix.mo-CFG.base.mo)+" kg", "g") +
@@ -544,7 +551,11 @@ function renderBase(){
        linha("Pontos de NPK — Tera Base", f2.format(PB))+
        linha("Pontos de NPK — Tera Mix", f2.format(PM))+
        linha("Ganho de nutriente", "+"+pc(PM/PB-1))+
-       '</div><p class="hint">Um ponto é 1% de nutriente na tonelada. O Tera Mix entrega '+
+       linha("Produto Tera Base", brl(r.prod))+
+       linha("Produto Tera Mix", brl(r.prodMix))+
+       linha("Frete (sem reajuste)", brl(r.frete))+
+       '</div><p class="hint">O reajuste incide apenas sobre o produto. O frete entra igual nos dois.</p>'+
+       '<p class="hint">Um ponto é 1% de nutriente na tonelada. O Tera Mix entrega '+
        f1.format(PM*10)+' kg de NPK por tonelada contra '+f1.format(PB*10)+' kg do Tera Base.</p></details>';
 
   h += rodape();
@@ -628,8 +639,10 @@ function renderMin(){
        linha("Pontos do Tera Mix", f2.format(PM))+
        linha("R$ por ponto — mineral", brl(r.m.preco/(r.m.n+r.m.p+r.m.k)))+
        linha("R$ por ponto — Tera Mix", brl(r.pm/PM))+
-       linha("Preço do Tera Mix", brl(r.pm))+
-       '</div></details>';
+       linha("Produto Tera Mix", brl(r.prodMix))+
+       linha("Frete (sem reajuste)", brl(r.frete))+
+       linha("Tera Mix posto", brl(r.pm))+
+       '</div><p class="hint">O reajuste incide apenas sobre o produto. O frete é somado depois.</p></details>';
 
   h += rodape();
   return h;
