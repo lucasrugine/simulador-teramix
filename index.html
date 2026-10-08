@@ -273,17 +273,28 @@ details[open] summary{margin-bottom:12px}
    Teores em base úmida (%), matéria orgânica em kg por tonelada.
    ══════════════════════════════════════════════════════════════ */
 var CFG = {
-  versao: "1.3",
+  versao: "1.5",
   referencia: "outubro/2026",
   reajuste: 0.25,
   taxaCama: 0.15,
   /* mo = matéria seca em kg por tonelada */
   base: { n:0.8631, p:0.9500, k:0.6351, mo:523.1 },
   mix:  { n:1.0436, p:1.1273, k:0.8473, mo:567.7 },
-  /* substâncias húmicas: % do produto como é vendido. Mesmo teor para os dois produtos. */
-  humicas: 10.0,
-  /* zinco em kg por tonelada do produto como é vendido */
-  zinco: 0.3,
+  /* Por tonelada do produto, como é vendido. O Tera Mix é 85% Tera Base:
+     húmicas e zinco vêm só dessa fração, por isso ficam 15% abaixo.
+     A cama entra como zero — não há laudo que declare esses teores nela. */
+  humicas: { base: 100,  mix: 85 },
+  zinco:   { base: 0.439, mix: 0.373 },
+  /* Micronutrientes e secundários do Tera Base, média analítica JDI 2025.
+     O Tera Mix recebe 85% — a cama não teve micros analisados. */
+  micros: [
+    { n:"Zinco",      u:"g",  base:439.18,   mix:373.30 },
+    { n:"Cobre",      u:"g",  base:145.37,   mix:123.56 },
+    { n:"Manganês",   u:"g",  base:2132.17,  mix:1812.34 },
+    { n:"Ferro",      u:"kg", base:21658.33, mix:18409.58 },
+    { n:"Molibdênio", u:"g",  base:15.93,    mix:13.54 },
+    { n:"Níquel",     u:"g",  base:34.52,    mix:29.34 }
+  ],
   /* logotipo: cole aqui a imagem em data URI ("data:image/png;base64,...").
      Vazio = usa a assinatura tipográfica. */
   logo: "data:image/png;base64,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",
@@ -305,9 +316,8 @@ var CFG = {
 };
 
 var pts = function(o){ return o.n + o.p + o.k; };
-var HUM_BASE = CFG.humicas*10;   /* kg por tonelada */
-var HUM_MIX  = CFG.humicas*10;
-var ZN = CFG.zinco;              /* kg por tonelada */
+var HUM_BASE = CFG.humicas.base, HUM_MIX = CFG.humicas.mix;   /* kg por tonelada */
+var ZN_BASE  = CFG.zinco.base,   ZN_MIX  = CFG.zinco.mix;
 var PB = pts(CFG.base), PM = pts(CFG.mix);
 var EQ = PM/PB - 1;
 
@@ -583,7 +593,7 @@ function renderMin(){
              brl(Math.abs(r.custoMin-r.doseIgual*r.pm),0), econ>=0?"g tot":"tot")+
        linha("Matéria seca que o mineral não leva", "+"+f0.format(r.doseIgual*CFG.mix.mo)+" kg/ha","g")+
        linha("Substâncias húmicas", "+"+f0.format(r.doseIgual*HUM_MIX)+" kg/ha","g")+
-       linha("Zinco", "+"+f1.format(r.doseIgual*ZN)+" kg/ha","g")+
+       linha("Zinco", "+"+f2.format(r.doseIgual*ZN_MIX)+" kg/ha","g")+
        '</div></div>';
 
   h += '<h2>Balanço nutriente a nutriente</h2><div class="card"><div class="rows">'+
@@ -617,7 +627,7 @@ function renderMin(){
        linha(e2>=0?"Economia por hectare":"Custo a mais por hectare", brl(Math.abs(e2),0)+" /ha", (e2>=0?"g ":"")+"tot")+
        linha("Matéria seca", "+"+f0.format(r.moMix)+" kg/ha","g")+
        linha("Substâncias húmicas", "+"+f0.format(r.dose*HUM_MIX)+" kg/ha","g")+
-       linha("Zinco", "+"+f1.format(r.dose*ZN)+" kg/ha","g")+
+       linha("Zinco", "+"+f2.format(r.dose*ZN_MIX)+" kg/ha","g")+
        linha("Tonelagem aplicada", f2.format(r.tonComb)+" t/ha")+
        '</div></div>';
 
@@ -628,7 +638,7 @@ function renderMin(){
        (e2>=0 ? " e economiza <b>"+brl(e2,0)+" por hectare</b>" : " com <b>"+brl(-e2,0)+" a mais por hectare</b>")+
        ". E leva por hectare <b>"+f0.format(r.moMix)+" kg de matéria seca</b>, dos quais <b>"+
        f0.format(r.dose*HUM_MIX)+" kg são substâncias húmicas</b> e <b>"+
-       f1.format(r.dose*ZN)+" kg de zinco</b> — nada disso o adubo químico entrega."+
+       f2.format(r.dose*ZN_MIX)+" kg de zinco</b> — nada disso o adubo químico entrega."+
        '</p></div>';
 
   h += '<div class="alert"><b>Confira antes de apresentar.</b> Todos os preços de fertilizante desta conta são '+
@@ -642,7 +652,13 @@ function renderMin(){
        linha("Produto Tera Mix", brl(r.prodMix))+
        linha("Frete (sem reajuste)", brl(r.frete))+
        linha("Tera Mix posto", brl(r.pm))+
-       '</div><p class="hint">O reajuste incide apenas sobre o produto. O frete é somado depois.</p></details>';
+       '</div><p class="hint">O reajuste incide apenas sobre o produto. O frete é somado depois.</p>'+
+       '<h2 style="margin-top:22px">Micronutrientes nesta dose</h2><div class="rows">'+
+       CFG.micros.map(function(m){
+         var v = r.dose * m.mix;                    /* mg/kg = g por tonelada */
+         return linha(m.n, (m.u==="kg" ? f1.format(v/1000)+" kg/ha" : f0.format(v)+" g/ha"), "g");
+       }).join("")+
+       '</div><p class="hint">Teores do Tera Mix × a dose aplicada. O adubo mineral formulado não entrega nenhum deles.</p></details>';
 
   h += rodape();
   return h;

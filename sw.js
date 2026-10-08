@@ -1,7 +1,7 @@
 /* Service worker do Simulador Tera Mix.
    Ao publicar uma versão nova, troque o número em VERSAO. Os celulares
    da equipe baixam a atualização sozinhos na próxima vez que pegarem sinal. */
-var VERSAO = "teramix-v4";
+var VERSAO = "teramix-v6";
 
 var ESSENCIAIS = [
   "./",
