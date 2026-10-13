@@ -193,6 +193,19 @@ details[open] summary{margin-bottom:12px}
 .foot{color:var(--ink2);font-size:12.5px;line-height:1.6;margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
 .foot p{margin:0 0 6px}
 
+/* ── tela de acesso ── */
+#s-porta{max-width:360px;margin:0 auto;padding-top:6vh}
+#s-porta .logo{display:flex;justify-content:center;margin-bottom:26px}
+#s-porta .logo img{height:44px;width:auto}
+#s-porta .cx{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px}
+#s-porta h1{font-size:21px;margin:0 0 6px;text-align:center}
+#s-porta .d{color:var(--ink2);font-size:14px;text-align:center;margin:0 0 20px;line-height:1.5}
+#s-porta .erro{background:var(--red-soft);color:var(--red);font-size:13.5px;border-radius:10px;
+  padding:10px 13px;margin-bottom:14px;line-height:1.45}
+#s-porta .rod{text-align:center;color:var(--ink2);font-size:12.5px;margin-top:18px;line-height:1.5}
+.sair{appearance:none;background:none;border:none;color:var(--ink2);font:inherit;font-size:12.5px;
+  text-decoration:underline;cursor:pointer;padding:0;margin-top:10px}
+
 @media print{
   :root{--paper:#fff;--card:#fff;--sunk:#F2EDE7;--ink:#231F20;--ink2:#5A514B;--line:#CFC4B9;
     --brown:#996437;--brown-deep:#6F4726;--brown-soft:#F2E7DB;
@@ -213,14 +226,31 @@ details[open] summary{margin-bottom:12px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top noprint">
+  <!-- ACESSO -->
+  <section id="s-porta">
+    <div class="logo"><img id="logo-porta" src="" alt="Tera Nutrição Vegetal"></div>
+    <div class="cx">
+      <h1>Simulador Tera Mix</h1>
+      <p class="d">Ferramenta da equipe comercial.<br>Informe o código de acesso.</p>
+      <div class="erro" id="erro" hidden></div>
+      <div class="field">
+        <label for="codigo">Código de acesso</label>
+        <input id="codigo" type="password" inputmode="text" autocomplete="off"
+               autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+      <button class="btn" id="entrar" style="width:100%">Entrar</button>
+    </div>
+    <p class="rod">Você só precisa digitar uma vez neste celular.</p>
+  </section>
+
+  <div class="top noprint" id="barra" hidden>
     <div class="mark" id="marca"></div>
     <div class="sp"></div>
     <button class="ghost" id="restart" hidden>Nova simulação</button>
   </div>
 
   <!-- HOME -->
-  <section id="s-home">
+  <section id="s-home" hidden>
     <div class="capa">
       <p class="slogan">Matéria orgânica transforma</p>
       <h1>Simulador Tera Mix</h1>
@@ -239,6 +269,7 @@ details[open] summary{margin-bottom:12px}
     </div>
     <div class="foot">
       <p>Tera Nutrição Vegetal · versão <span id="ver"></span> · referência <span id="ref"></span></p>
+      <button class="sair" onclick="sair()">Sair deste aparelho</button>
     </div>
   </section>
 
@@ -273,7 +304,7 @@ details[open] summary{margin-bottom:12px}
    Teores em base úmida (%), matéria orgânica em kg por tonelada.
    ══════════════════════════════════════════════════════════════ */
 var CFG = {
-  versao: "1.5",
+  versao: "1.6",
   referencia: "outubro/2026",
   reajuste: 0.25,
   taxaCama: 0.15,
@@ -295,6 +326,10 @@ var CFG = {
     { n:"Molibdênio", u:"g",  base:15.93,    mix:13.54 },
     { n:"Níquel",     u:"g",  base:34.52,    mix:29.34 }
   ],
+  /* Código de acesso da equipe. Guardado como impressão digital, não em texto claro.
+     É barreira contra uso casual, não segurança — num arquivo que roda no celular
+     não existe senha inviolável. Para trocar, peça um código novo. */
+  acesso: "7923ffbd-11",
   /* logotipo: cole aqui a imagem em data URI ("data:image/png;base64,...").
      Vazio = usa a assinatura tipográfica. */
   logo: "data:image/png;base64,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",
@@ -400,8 +435,9 @@ function campo(id,lab,tipo,val,unid,extra){
 /* ══════════════ NAVEGAÇÃO ══════════════ */
 var $ = function(id){ return document.getElementById(id); };
 function mostra(qual){
-  ["s-home","s-form","s-res"].forEach(function(s){ $(s).hidden = (s!==qual); });
-  $("restart").hidden = (qual==="s-home");
+  ["s-porta","s-home","s-form","s-res"].forEach(function(s){ $(s).hidden = (s!==qual); });
+  $("barra").hidden = (qual==="s-porta");
+  $("restart").hidden = (qual==="s-home" || qual==="s-porta");
   window.scrollTo(0,0);
 }
 function pinta(){
@@ -673,7 +709,8 @@ function rodape(){
   return '<div class="foot"><p>Comparação de custo entre produtos, não recomendação agronômica. '+
     'Nutriente orgânico não tem a mesma prontidão do mineral.</p>'+
     '<p>Compare sempre posto na fazenda contra posto na fazenda.</p>'+
-    '<p>Tera Nutrição Vegetal · simulador v'+CFG.versao+' · referência '+CFG.referencia+'</p></div>';
+    '<p>Tera Nutrição Vegetal · simulador v'+CFG.versao+' · referência '+CFG.referencia+'</p>'+
+    '<button class="sair noprint" onclick="sair()">Sair deste aparelho</button></div>';
 }
 
 function resultado(){
@@ -685,6 +722,37 @@ function resultado(){
   });
   mostra("s-res");
 }
+
+/* ══════════════ ACESSO ══════════════ */
+function sair(){
+  try { localStorage.removeItem("tmix_acesso"); } catch(e){}
+  $("codigo").value = ""; $("erro").hidden = true;
+  mostra("s-porta");
+}
+function impressao(t){
+  var h = 5381;
+  for (var i=0;i<t.length;i++){ h = ((h*33) ^ t.charCodeAt(i)) >>> 0; }
+  return h.toString(16) + "-" + t.length;
+}
+function liberado(){
+  try { return localStorage.getItem("tmix_acesso") === CFG.acesso; } catch(e){ return false; }
+}
+function abrir(){
+  try { localStorage.setItem("tmix_acesso", CFG.acesso); } catch(e){}
+  mostra("s-home");
+}
+function tentar(){
+  var v = ($("codigo").value || "").trim();
+  if (!v) return;
+  if (impressao(v.toLowerCase()) === CFG.acesso) { abrir(); return; }
+  var e = $("erro");
+  e.textContent = "Código incorreto. Confira com o gestor comercial.";
+  e.hidden = false;
+  $("codigo").value = "";
+  $("codigo").focus();
+}
+$("entrar").addEventListener("click", tentar);
+$("codigo").addEventListener("keydown", function(ev){ if (ev.key === "Enter") tentar(); });
 
 /* ══════════════ EVENTOS ══════════════ */
 $("qbody").addEventListener("input", valida);
@@ -723,6 +791,9 @@ if(EMB){ $("pdf").hidden = true; $("pdfnote").hidden = false; $("edit").style.fl
   var m = $("marca");
   m.innerHTML = '<img class="logo-light" src="'+CFG.logo+'" alt="Tera Nutrição Vegetal">'+
                 '<img class="logo-dark" src="'+CFG.logoEscuro+'" alt="">';
+  $("logo-porta").src = CFG.logo;
+  if (liberado()) { mostra("s-home"); }
+  else { mostra("s-porta"); setTimeout(function(){ try{ $("codigo").focus(); }catch(e){} }, 120); }
 })();
 $("ver").textContent = CFG.versao;
 $("ref").textContent = CFG.referencia;
